@@ -3,21 +3,18 @@ package main
 import (
 	"emaildrop/middleware"
 	"net/http"
-	"time"
 
-	"github.com/didip/tollbooth"
-	"github.com/didip/tollbooth/limiter"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	r := gin.Default()
 
-	limiter := tollbooth.NewLimiter(5, &limiter.ExpirableOptions{
-		DefaultExpirationTTL: time.Minute,
-	})
+	t := middleware.Tools{}
+	t.Setup()
 
-	r.Use(middleware.RateLimitMiddleware(limiter))
+	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.RateLimitMiddleware(t.Limiter))
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello\nMy site is here: https://kopatsis.com")
