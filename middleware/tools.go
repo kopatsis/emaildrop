@@ -5,6 +5,7 @@ import (
 	"emaildrop/database"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	emailverifier "github.com/AfterShip/email-verifier"
@@ -39,4 +40,25 @@ func (t *Tools) Setup() {
 		t.DB = db
 	}
 
+	if sgAPIKey := os.Getenv("SENDGRID_API_KEY"); sgAPIKey != "" {
+		t.SendGrid = sendgrid.NewSendClient(sgAPIKey)
+	} else {
+		log.Fatal("Missing SENDGRID_API_KEY")
+	}
+
+	t.Client = &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	if geoDBPath := os.Getenv("GEOIP2_DB_PATH"); geoDBPath != "" {
+		if geo, err := geoip2.Open(geoDBPath); err != nil {
+			log.Fatal("GeoIP2 error: " + err.Error())
+		} else {
+			t.Geo = geo
+		}
+	} else {
+		log.Fatal("Missing GEOIP2_DB_PATH")
+	}
+
+	t.EmailVerifier = emailverifier.NewVerifier()
 }

@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"encoding/json"
 	"time"
 )
 
@@ -20,7 +19,7 @@ func GetCountOfSuccessfulEntries(db *sql.DB) (int, error) {
 	return count, nil
 }
 
-func GetEntriesInLast24Hours(db *sql.DB) ([]byte, error) {
+func GetEntriesInLast24Hours(db *sql.DB) ([]Entry, error) {
 	now := time.Now()
 	oneDayAgo := now.Add(-24 * time.Hour)
 
@@ -44,10 +43,5 @@ func GetEntriesInLast24Hours(db *sql.DB) ([]byte, error) {
 		return nil, err
 	}
 
-	jsonData, err := json.Marshal(entries)
-	if err != nil {
-		return nil, err
-	}
-
-	return jsonData, nil
+	return entries, nil
 }

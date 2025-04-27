@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func VerifyTurnstile(responseToken string) (bool, error) {
+func VerifyTurnstile(responseToken string, client *http.Client) (bool, error) {
 	secretKey := os.Getenv("CF_SECRET_KEY")
 	if secretKey == "" {
 		return false, errors.New("missing CF_SECRET_KEY environment variable")
@@ -30,7 +30,6 @@ func VerifyTurnstile(responseToken string) (bool, error) {
 
 	req.Form = form
 
-	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		return false, err
