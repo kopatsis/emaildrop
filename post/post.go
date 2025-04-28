@@ -44,7 +44,13 @@ func PostContactForm(tools *middleware.Tools) gin.HandlerFunc {
 			return
 		}
 
-		if !middleware.VerifyStruct(&form, tools) {
+		if !middleware.VerifyStruct(&form) {
+			applyError(&entry, c, "Struct Verify", errors.New("cannot verify struct"))
+			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
+			return
+		}
+
+		if !middleware.VerifyEmail(&form, tools) {
 			applyError(&entry, c, "Struct Verify", errors.New("cannot verify struct"))
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
@@ -89,6 +95,7 @@ func PostContactForm(tools *middleware.Tools) gin.HandlerFunc {
 			return
 		}
 
+		entry.Complete = true
 		if err := SendConfirmationToUser(tools.SendGrid, entry.Name, entry.Email); err != nil {
 			applyError(&entry, c, "Message To User", err)
 		}

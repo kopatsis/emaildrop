@@ -13,8 +13,8 @@ type ContactForm struct {
 	CFTurnstileResponse string `form:"cf-turnstile-response"`
 }
 
-func VerifyStruct(form *ContactForm, tools *Tools) bool {
-	if form == nil || tools == nil {
+func VerifyStruct(form *ContactForm) bool {
+	if form == nil {
 		return false
 	}
 
@@ -33,6 +33,14 @@ func VerifyStruct(form *ContactForm, tools *Tools) bool {
 		return false
 	}
 	if len(form.CFTurnstileResponse) == 0 {
+		return false
+	}
+
+	return true
+}
+
+func VerifyEmail(form *ContactForm, tools *Tools) bool {
+	if form == nil || tools == nil {
 		return false
 	}
 

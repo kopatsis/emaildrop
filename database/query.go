@@ -10,7 +10,7 @@ func GetCountOfSuccessfulEntries(db *sql.DB) (int, error) {
 	oneDayAgo := now.Add(-24 * time.Hour)
 
 	var count int
-	query := `SELECT COUNT(*) FROM entries WHERE timestamp >= ? AND has_error = 0`
+	query := `SELECT COUNT(*) FROM entries WHERE timestamp >= ? AND complete = 1`
 	err := db.QueryRow(query, oneDayAgo).Scan(&count)
 	if err != nil {
 		return 0, err
