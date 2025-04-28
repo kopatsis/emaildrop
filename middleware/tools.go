@@ -50,14 +50,10 @@ func (t *Tools) Setup() {
 		Timeout: 30 * time.Second,
 	}
 
-	if geoDBPath := os.Getenv("GEOIP2_DB_PATH"); geoDBPath != "" {
-		if geo, err := geoip2.Open(geoDBPath); err != nil {
-			log.Fatal("GeoIP2 error: " + err.Error())
-		} else {
-			t.Geo = geo
-		}
+	if geo, err := geoip2.Open("assets/GeoLite2-City.mmdb"); err != nil {
+		log.Fatal("GeoIP2 error: " + err.Error())
 	} else {
-		log.Fatal("Missing GEOIP2_DB_PATH")
+		t.Geo = geo
 	}
 
 	t.EmailVerifier = emailverifier.NewVerifier()

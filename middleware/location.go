@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"crypto/sha256"
+	"emaildrop/database"
 	"encoding/hex"
 	"net"
 	"strings"
@@ -9,9 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func IPData(tools *Tools, c *gin.Context) (string, string, string) {
-	var city string
-	var country string
+func IPData(tools *Tools, c *gin.Context, entry *database.Entry) {
+	if tools == nil || c == nil || entry == nil {
+		return
+	}
 
 	ipStr := c.ClientIP()
 
@@ -19,7 +21,6 @@ func IPData(tools *Tools, c *gin.Context) (string, string, string) {
 		ipStr = c.Request.Header.Get("X-Forwarded-For")
 	}
 
-	hashed := ""
 	if ipStr != "" {
 		if commaIndex := strings.Index(ipStr, ","); commaIndex != -1 {
 			ipStr = ipStr[:commaIndex]
@@ -29,13 +30,10 @@ func IPData(tools *Tools, c *gin.Context) (string, string, string) {
 		if ip != nil {
 			record, err := tools.Geo.City(ip)
 			if err == nil && record != nil {
-				city = record.City.Names["en"]
-				country = record.Country.Names["en"]
+				entry.City = record.City.Names["en"]
+				entry.Country = record.Country.Names["en"]
 			}
 		}
-		hashed = hex.EncodeToString(sha256.New().Sum([]byte(ipStr)))
+		entry.IPHash = hex.EncodeToString(sha256.New().Sum([]byte(ipStr)))
 	}
-
-	return city, country, hashed
-
 }
