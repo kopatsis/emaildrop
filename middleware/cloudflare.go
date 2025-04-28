@@ -1,4 +1,4 @@
-package cloudflare
+package middleware
 
 import (
 	"context"

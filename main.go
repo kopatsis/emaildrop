@@ -2,6 +2,7 @@ package main
 
 import (
 	"emaildrop/middleware"
+	"emaildrop/post"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,18 +21,7 @@ func main() {
 		c.String(http.StatusOK, "Hello\nMy site is here: https://kopatsis.com")
 	})
 
-	r.POST("/contact", func(c *gin.Context) {
-		var form middleware.ContactForm
-		if err := c.ShouldBind(&form); err == nil {
-			// You can process the form here later
-			c.JSON(http.StatusOK, gin.H{
-				"message": "Form received",
-				"data":    form,
-			})
-		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		}
-	})
+	r.POST("/contact", post.PostContactForm(&t))
 
 	r.Run(":8080")
 }

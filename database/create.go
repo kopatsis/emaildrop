@@ -8,13 +8,14 @@ import (
 )
 
 type Entry struct {
-	ID           int       `json:"id"`
+	ID           int64     `json:"id"`
 	Timestamp    time.Time `json:"timestamp"`
 	RequestID    string    `json:"requestID"`
 	Name         string    `json:"name"`
 	Email        string    `json:"email"`
 	Subject      string    `json:"subject"`
 	Comment      string    `json:"comment"`
+	Complete     bool      `json:"complete"`
 	IPHash       string    `json:"iphash"`
 	City         string    `json:"city"`
 	Country      string    `json:"country"`
@@ -39,6 +40,7 @@ func SetupDatabase() (*sql.DB, error) {
 		email TEXT,
 		subject TEXT,
 		comment TEXT,
+		complete BOOLEAN,
 		iphash TEXT,
 		city TEXT,
 		country TEXT,
