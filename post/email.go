@@ -15,9 +15,8 @@ func SendConfirmationEmail(client *sendgrid.Client, entry database.Entry) error 
 	to := mail.NewEmail("Me", "j@kopatsis.com")
 	subject := "Successful Contact Form Submission Received"
 	body := "Here is the data:\n\n" +
-		"ID: " + fmt.Sprintf("%d", entry.ID) + "\n" +
-		"Timestamp: " + entry.Timestamp.String() + "\n" +
 		"RequestID: " + entry.RequestID + "\n" +
+		"Timestamp: " + entry.Timestamp.String() + "\n" +
 		"Name: " + entry.Name + "\n" +
 		"Email: " + entry.Email + "\n" +
 		"Subject: " + entry.Subject + "\n" +

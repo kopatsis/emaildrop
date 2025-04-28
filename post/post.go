@@ -4,6 +4,7 @@ import (
 	"emaildrop/database"
 	"emaildrop/middleware"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -12,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func applyError(entry *database.Entry, c *gin.Context, source string, err error) {
+func applyError(entry *database.Entry, tools *middleware.Tools, c *gin.Context, source string, err error) {
 	if entry == nil || c == nil {
 		return
 	}
@@ -25,6 +26,10 @@ func applyError(entry *database.Entry, c *gin.Context, source string, err error)
 		entry.ErrorMessage = "no specifc error given"
 	}
 	entry.Response = "Sorry, I'm unable to process your form submission request at the moment. Please email me directly, thanks :)."
+
+	if err := database.InsertEntry(tools.DB, *entry); err != nil {
+		fmt.Printf("Unable to save entry: %+v\n", entry)
+	}
 
 }
 
@@ -39,19 +44,19 @@ func PostContactForm(tools *middleware.Tools) gin.HandlerFunc {
 
 		var form middleware.ContactForm
 		if err := c.ShouldBind(&form); err != nil {
-			applyError(&entry, c, "Binding Form", err)
+			applyError(&entry, tools, c, "Binding Form", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		}
 
 		if !middleware.VerifyStruct(&form) {
-			applyError(&entry, c, "Struct Verify", errors.New("cannot verify struct"))
+			applyError(&entry, tools, c, "Struct Verify", errors.New("cannot verify struct"))
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		}
 
 		if !middleware.VerifyEmail(&form, tools) {
-			applyError(&entry, c, "Struct Verify", errors.New("cannot verify struct"))
+			applyError(&entry, tools, c, "Struct Verify", errors.New("cannot verify struct"))
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		}
@@ -63,49 +68,42 @@ func PostContactForm(tools *middleware.Tools) gin.HandlerFunc {
 
 		success, err := middleware.VerifyTurnstile(form.CFTurnstileResponse, tools.Client)
 		if err != nil {
-			applyError(&entry, c, "Turnstile Verification", err)
+			applyError(&entry, tools, c, "Turnstile Verification", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		} else if !success {
-			applyError(&entry, c, "Turnstile Verification", errors.New("failed turnstile challenge"))
+			applyError(&entry, tools, c, "Turnstile Verification", errors.New("failed turnstile challenge"))
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		}
 
 		ct, err := database.GetCountOfSuccessfulEntries(tools.DB)
 		if err != nil {
-			applyError(&entry, c, "Query Entry Count", err)
+			applyError(&entry, tools, c, "Query Entry Count", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		} else if ct >= 50 {
-			applyError(&entry, c, "Query Entry After Count", errors.New("at/past capacity: "+strconv.Itoa(ct)))
+			applyError(&entry, tools, c, "Query Entry After Count", errors.New("at/past capacity: "+strconv.Itoa(ct)))
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		}
 
-		if id, err := database.InsertEntry(tools.DB, entry); err != nil {
-			applyError(&entry, c, "Initial Insertion", err)
-		} else {
-			entry.ID = id
-		}
-
 		if err := SendConfirmationEmail(tools.SendGrid, entry); err != nil {
-			applyError(&entry, c, "Message To Myself", err)
+			applyError(&entry, tools, c, "Message To Myself", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		}
 
 		entry.Complete = true
 		if err := SendConfirmationToUser(tools.SendGrid, entry.Name, entry.Email); err != nil {
-			applyError(&entry, c, "Message To User", err)
+			applyError(&entry, tools, c, "Message To User", err)
+			c.Status(204)
+			return
 		}
 
-		if entry.ID > 0 {
-			database.UpdateEntry(tools.DB, entry)
-		} else {
-			database.InsertEntry(tools.DB, entry)
+		if err := database.InsertEntry(tools.DB, entry); err != nil {
+			fmt.Printf("Unable to save entry: %+v\n", entry)
 		}
-
 		c.Status(204)
 
 	}

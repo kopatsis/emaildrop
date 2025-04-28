@@ -8,9 +8,8 @@ import (
 )
 
 type Entry struct {
-	ID           int64     `json:"id"`
-	Timestamp    time.Time `json:"timestamp"`
 	RequestID    string    `json:"requestID"`
+	Timestamp    time.Time `json:"timestamp"`
 	Name         string    `json:"name"`
 	Email        string    `json:"email"`
 	Subject      string    `json:"subject"`
@@ -26,16 +25,15 @@ type Entry struct {
 }
 
 func SetupDatabase() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "./data.db")
+	db, err := sql.Open("sqlite3", "./data.db?_busy_timeout=5000&_journal_mode=WAL")
 	if err != nil {
 		return nil, err
 	}
 
 	query := `
 	CREATE TABLE IF NOT EXISTS entries (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		requestID TEXT PRIMARY KEY,
 		timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-		requestID TEXT,
 		name TEXT,
 		email TEXT,
 		subject TEXT,
