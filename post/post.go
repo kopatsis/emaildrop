@@ -90,7 +90,6 @@ func PostContactForm(tools *middleware.Tools) gin.HandlerFunc {
 		}
 
 		if err := SendConfirmationSlack(tools.Client, entry); err != nil {
-			applyError(&entry, tools, c, "Slack To Myself", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		}

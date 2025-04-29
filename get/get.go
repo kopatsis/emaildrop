@@ -56,7 +56,7 @@ func GetResp(tools *middleware.Tools) gin.HandlerFunc {
 			return
 		}
 
-		reqID := c.Query("id")
+		reqID := c.Param("id")
 		if entry, err := database.GetEntry(tools.DB, reqID); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error_message": err.Error()})
 		} else {

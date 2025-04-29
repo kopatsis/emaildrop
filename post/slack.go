@@ -14,15 +14,38 @@ func SendConfirmationSlack(client *http.Client, entry database.Entry) error {
 	webhookURL := os.Getenv("SLACK_WEBHOOK")
 
 	text := fmt.Sprintf(
-		"*New Contact Form Submission:*\nRequest ID: %s\nTimestamp: %s\nName: %s\nEmail: %s\nSubject: %s\nComment: %s\nComplete: %v",
+		"*Request ID:* %s\n*Link:* %s\n*Timestamp:* %s\n*Name:* %s\n*Email:* %s\n*Subject:* %s\n*Comment:* %s\n*Complete:* %v",
 		entry.RequestID,
-		entry.Timestamp.String(),
+		"https://emaildrop.kopatsis.com/data/"+entry.RequestID,
+		entry.Timestamp.Format("2006-01-02 15:04:05"),
 		entry.Name,
 		entry.Email,
 		entry.Subject,
 		entry.Comment,
 		entry.Complete,
 	)
+
+	if entry.IPHash != "" {
+		text += fmt.Sprintf("\n*IP Hash:* %s", entry.IPHash)
+	}
+	if entry.City != "" {
+		text += fmt.Sprintf("\n*City:* %s", entry.City)
+	}
+	if entry.Country != "" {
+		text += fmt.Sprintf("\n*Country:* %s", entry.Country)
+	}
+	if entry.HasError {
+		text += fmt.Sprintf("\n*Has Error:* %v", entry.HasError)
+	}
+	if entry.ErrorSource != "" {
+		text += fmt.Sprintf("\n*Error Source:* %s", entry.ErrorSource)
+	}
+	if entry.ErrorMessage != "" {
+		text += fmt.Sprintf("\n*Error Message:* %s", entry.ErrorMessage)
+	}
+	if entry.Response != "" {
+		text += fmt.Sprintf("\n*Response:* %s", entry.Response)
+	}
 
 	payload := map[string]string{
 		"text": text,
