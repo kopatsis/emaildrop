@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -19,11 +20,12 @@ func GetCountOfSuccessfulEntries(db *sql.DB) (int, error) {
 	return count, nil
 }
 
-func GetEntriesInLast24Hours(db *sql.DB) ([]Entry, error) {
-	now := time.Now()
-	oneDayAgo := now.Add(-24 * time.Hour)
+func GetEntriesSince(db *sql.DB, since time.Time) ([]Entry, error) {
+	if since.After(time.Now()) || since.Before(time.Date(2025, 4, 27, 0, 0, 0, 0, time.Local)) {
+		return nil, errors.New("incorrect date provided: " + since.String())
+	}
 
-	rows, err := db.Query("SELECT timestamp, requestID, name, email, subject, comment, has_error, error_source, error_message, response FROM entries WHERE timestamp >= ?", oneDayAgo)
+	rows, err := db.Query("SELECT timestamp, requestID, name, email, subject, comment, has_error, error_source, error_message, response FROM entries WHERE timestamp >= ?", since)
 	if err != nil {
 		return nil, err
 	}
