@@ -31,7 +31,7 @@ func getSinceParam(c *gin.Context) time.Time {
 	}
 }
 
-func PostContactForm(tools *middleware.Tools) gin.HandlerFunc {
+func GetResps(tools *middleware.Tools) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		pass := c.GetHeader("X-Pass")
 		if hashPassword(pass) != os.Getenv("PERSONAL_KEY") {
@@ -44,6 +44,23 @@ func PostContactForm(tools *middleware.Tools) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error_message": err.Error()})
 		} else {
 			c.JSON(http.StatusOK, gin.H{"results": entries})
+		}
+	}
+}
+
+func GetResp(tools *middleware.Tools) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		pass := c.GetHeader("X-Pass")
+		if hashPassword(pass) != os.Getenv("PERSONAL_KEY") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "no auth key provided"})
+			return
+		}
+
+		reqID := c.Query("id")
+		if entry, err := database.GetEntry(tools.DB, reqID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error_message": err.Error()})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"results": entry})
 		}
 	}
 }

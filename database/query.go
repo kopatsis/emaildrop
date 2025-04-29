@@ -47,3 +47,15 @@ func GetEntriesSince(db *sql.DB, since time.Time) ([]Entry, error) {
 
 	return entries, nil
 }
+
+func GetEntry(db *sql.DB, reqID string) (Entry, error) {
+
+	var entry Entry
+	if reqID == "" {
+		return entry, errors.New("no param provided")
+	}
+
+	err := db.QueryRow("SELECT timestamp, requestID, name, email, subject, comment, has_error, error_source, error_message, response FROM entries WHERE requestID = ?", reqID).
+		Scan(&entry.Timestamp, &entry.RequestID, &entry.Name, &entry.Email, &entry.Subject, &entry.Comment, &entry.HasError, &entry.ErrorSource, &entry.ErrorMessage, &entry.Response)
+	return entry, err
+}

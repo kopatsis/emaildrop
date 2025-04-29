@@ -28,7 +28,8 @@ func main() {
 
 	r.POST("/contact", post.PostContactForm(&t))
 
-	r.GET("/data", get.PostContactForm(&t))
+	r.GET("/data", get.GetResps(&t))
+	r.GET("/data/:id", get.GetResp(&t))
 
 	r.Run(":8080")
 }
