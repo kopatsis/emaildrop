@@ -1,14 +1,19 @@
 package main
 
 import (
+	"emaildrop/get"
 	"emaildrop/middleware"
 	"emaildrop/post"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+
+	godotenv.Load()
+
 	r := gin.Default()
 
 	t := middleware.Tools{}
@@ -22,6 +27,8 @@ func main() {
 	})
 
 	r.POST("/contact", post.PostContactForm(&t))
+
+	r.GET("/data", get.PostContactForm(&t))
 
 	r.Run(":8080")
 }

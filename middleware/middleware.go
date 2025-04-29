@@ -11,8 +11,8 @@ import (
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.GetHeader("Origin")
-		if origin == "https://kopatsis.com" {
-			c.Writer.Header().Set("Access-Control-Allow-Origin", "https://kopatsis.com")
+		if origin == "https://kopatsis.com" || origin == "http://127.0.0.1:5500" {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 		} else {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", "null")
 		}

@@ -29,6 +29,7 @@ func applyError(entry *database.Entry, tools *middleware.Tools, c *gin.Context, 
 
 	if err := database.InsertEntry(tools.DB, *entry); err != nil {
 		fmt.Printf("Unable to save entry: %+v\n", entry)
+		fmt.Printf("\n\n%v\n", err)
 	}
 
 }

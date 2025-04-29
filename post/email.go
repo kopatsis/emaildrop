@@ -12,24 +12,24 @@ import (
 
 func SendConfirmationEmail(client *sendgrid.Client, entry database.Entry) error {
 	from := mail.NewEmail("Me", "donotreply@kopatsis.com")
-	to := mail.NewEmail("Me", "j@kopatsis.com")
-	subject := "Successful Contact Form Submission Received"
-	body := "Here is the data:\n\n" +
-		"RequestID: " + entry.RequestID + "\n" +
-		"Timestamp: " + entry.Timestamp.String() + "\n" +
-		"Name: " + entry.Name + "\n" +
-		"Email: " + entry.Email + "\n" +
-		"Subject: " + entry.Subject + "\n" +
-		"Comment: " + entry.Comment + "\n" +
-		"Complete: " + fmt.Sprintf("%v", entry.Complete) + "\n" +
-		"IPHash: " + entry.IPHash + "\n" +
-		"City: " + entry.City + "\n" +
-		"Country: " + entry.Country + "\n" +
-		"HasError: " + fmt.Sprintf("%v", entry.HasError) + "\n" +
-		"ErrorSource: " + entry.ErrorSource + "\n" +
-		"ErrorMessage: " + entry.ErrorMessage + "\n" +
-		"Response: " + entry.Response
-	message := mail.NewSingleEmail(from, subject, to, body, body)
+	to := mail.NewEmail("Demetrios Kopatsis", "j@kopatsis.com")
+	subject := "Internal: My Server Was Just Contacted"
+	htmlBody := "<html><body>" +
+		"<p>Hello,</p>" +
+		"<p>A new contact form submission was received. Here are the details:</p>" +
+		"<p><strong>Request ID:</strong> " + entry.RequestID + "</p>" +
+		"<p><strong>Timestamp:</strong> " + entry.Timestamp.String() + "</p>" +
+		"<p><strong>Name:</strong> " + entry.Name + "</p>" +
+		"<p><strong>Email:</strong> " + entry.Email + "</p>" +
+		"<p><strong>Subject:</strong> " + entry.Subject + "</p>" +
+		"<p><strong>Comment:</strong> " + entry.Comment + "</p>" +
+		"<p><strong>Complete:</strong> " + fmt.Sprintf("%v", entry.Complete) + "</p>" +
+		"<p>If this was not expected, please check for errors in the submission process.</p>" +
+		"<p>Best regards,<br>Your Server</p>" +
+		"</body></html>"
+
+	message := mail.NewSingleEmail(from, subject, to, "", htmlBody)
+	message.AddContent(mail.NewContent("text/html", htmlBody))
 
 	_, err := client.Send(message)
 	if err != nil {
@@ -49,7 +49,7 @@ func SendConfirmationToUser(client *sendgrid.Client, name string, email string) 
 
 	from := mail.NewEmail("Demetrios Kopatsis", "donotreply@kopatsis.com")
 	to := mail.NewEmail(name, email)
-	subject := "I Have Successfully Received Your Contact Form Submission"
+	subject := "I Got Your Message, and I'll Be in Touch Soon"
 	message := mail.NewSingleEmail(from, subject, to, string(htmlContent), string(htmlContent))
 
 	_, err = client.Send(message)

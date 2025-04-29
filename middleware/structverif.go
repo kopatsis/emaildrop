@@ -54,5 +54,5 @@ func VerifyEmail(form *ContactForm, tools *Tools) bool {
 		return true
 	}
 
-	return result.Syntax.Valid && result.SMTP.Deliverable
+	return result.Syntax.Valid
 }

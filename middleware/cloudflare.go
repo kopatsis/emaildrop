@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -23,12 +24,12 @@ func VerifyTurnstile(responseToken string, client *http.Client) (bool, error) {
 	form.Set("secret", secretKey)
 	form.Set("response", responseToken)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", "https://challenges.cloudflare.com/turnstile/v0/siteverify", nil)
+	body := strings.NewReader(form.Encode())
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://challenges.cloudflare.com/turnstile/v0/siteverify", body)
 	if err != nil {
 		return false, err
 	}
-
-	req.Form = form
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := client.Do(req)
 	if err != nil {
