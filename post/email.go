@@ -2,7 +2,6 @@ package post
 
 import (
 	"emaildrop/database"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -18,12 +17,11 @@ func SendConfirmationEmail(client *sendgrid.Client, entry database.Entry) error 
 		"<p>Hello,</p>" +
 		"<p>A new contact form submission was received. Here are the details:</p>" +
 		"<p><strong>Request ID:</strong> " + entry.RequestID + "</p>" +
-		"<p><strong>Timestamp:</strong> " + entry.Timestamp.String() + "</p>" +
+		"<p><strong>Timestamp:</strong> " + entry.Timestamp.Format("2006-01-02 15:04:05") + "</p>" +
 		"<p><strong>Name:</strong> " + entry.Name + "</p>" +
 		"<p><strong>Email:</strong> " + entry.Email + "</p>" +
 		"<p><strong>Subject:</strong> " + entry.Subject + "</p>" +
 		"<p><strong>Comment:</strong> " + entry.Comment + "</p>" +
-		"<p><strong>Complete:</strong> " + fmt.Sprintf("%v", entry.Complete) + "</p>" +
 		"<p>If this was not expected, please check for errors in the submission process.</p>" +
 		"<p>Best regards,<br>Your Server</p>" +
 		"</body></html>"
