@@ -89,15 +89,22 @@ func PostContactForm(tools *middleware.Tools) gin.HandlerFunc {
 			return
 		}
 
-		if err := SendConfirmationEmail(tools.SendGrid, entry); err != nil {
-			applyError(&entry, tools, c, "Message To Myself", err)
+		if err := SendConfirmationSlack(tools.Client, entry); err != nil {
+			applyError(&entry, tools, c, "Slack To Myself", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		}
 
 		entry.Complete = true
+
 		if err := SendConfirmationToUser(tools.SendGrid, entry.Name, entry.Email); err != nil {
 			applyError(&entry, tools, c, "Message To User", err)
+			c.Status(204)
+			return
+		}
+
+		if err := SendConfirmationEmail(tools.SendGrid, entry); err != nil {
+			applyError(&entry, tools, c, "Message To Myself", err)
 			c.Status(204)
 			return
 		}
