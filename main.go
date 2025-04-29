@@ -6,6 +6,8 @@ import (
 	"emaildrop/post"
 	"net/http"
 
+	// "os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -15,6 +17,17 @@ func main() {
 	godotenv.Load()
 
 	r := gin.Default()
+
+	// isProduction := os.Getenv("ENV") == "production"
+	// if isProduction {
+	// 	trustedProxies := []string{
+	// 		"kopatsis.com",
+	// 		"192.168.1.100",
+	// 	}
+	// 	r.SetTrustedProxies(trustedProxies)
+	// } else {
+	// 	r.SetTrustedProxies([]string{"127.0.0.1", "localhost"})
+	// }
 
 	t := middleware.Tools{}
 	t.Setup()
