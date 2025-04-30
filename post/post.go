@@ -18,6 +18,8 @@ func applyError(entry *database.Entry, tools *middleware.Tools, c *gin.Context, 
 		return
 	}
 
+	fmt.Println("Error at: " + source + " - " + err.Error())
+
 	entry.HasError = true
 	entry.ErrorSource = source
 	if err != nil {
@@ -90,6 +92,7 @@ func PostContactForm(tools *middleware.Tools) gin.HandlerFunc {
 		}
 
 		if err := SendConfirmationSlack(tools.Client, entry); err != nil {
+			applyError(&entry, tools, c, "Slack error", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": entry.Response})
 			return
 		}

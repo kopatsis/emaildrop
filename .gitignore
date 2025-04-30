@@ -3,3 +3,5 @@ assets/GeoLite2-City.mmdb
 data.db
 data.db-shm
 data.db-wal
+.dockerignore
+Dockerfile
